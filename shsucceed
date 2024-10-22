@@ -1,0 +1,28 @@
+#!/bin/bash
+
+###############################################################################
+# SHSUCCEED                                                                   #
+#                                                                             #
+# A simple Bash utility to log success messages.                              #
+# ·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-· #
+# Usage:                                                                      #
+# $ shsucceed [origin] <message>                                              #
+#                                                                             #
+# Arguments                                                                   #
+# ---------                                                                   #
+# origin                                                                      #
+#   Where the success comes from. Must be a valid identifier.                 #
+# message                                                                     #
+#   The logging message.                                                      #
+#                                                                             #
+# Exit codes                                                                  #
+# ----------                                                                  #
+# 2                                                                           #
+#   - the number of arguments is less than 1 (2 to shlog)                     #
+# 1                                                                           #
+#   - the origin is not a valid identifier                                    #
+###############################################################################
+
+set -euo pipefail
+
+shlog success "$@"

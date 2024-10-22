@@ -1,0 +1,28 @@
+#!/bin/bash
+
+###############################################################################
+# SHWARN                                                                      #
+#                                                                             #
+# A simple Bash utility to log warnings.                                      #
+# ·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-· #
+# Usage:                                                                      #
+# $ shwarn [origin] <message>                                                 #
+#                                                                             #
+# Arguments                                                                   #
+# ---------                                                                   #
+# origin                                                                      #
+#   Where the warning comes from. Must be a valid identifier.                 #
+# message                                                                     #
+#   The logging message.                                                      #
+#                                                                             #
+# Exit codes                                                                  #
+# ----------                                                                  #
+# 2                                                                           #
+#   - the number of arguments is less than 1 (2 to shlog)                     #
+# 1                                                                           #
+#   - the origin is not a valid identifier                                    #
+###############################################################################
+
+set -euo pipefail
+
+shlog warning "$@"

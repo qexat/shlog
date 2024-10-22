@@ -1,0 +1,99 @@
+#!/bin/bash
+
+###############################################################################
+# shlog                                                                       #
+#                                                                             #
+# A simple Bash utility to log useful messages.                               #
+# ·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-· #
+# Commands                                                                    #
+# ========                                                                    #
+# - shask                                                                     #
+# - sherror                                                                   #
+# - shinfo                                                                    #
+# - shnote                                                                    #
+# - shsucceed                                                                 #
+# - shwarn                                                                    #
+# ·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-· #
+# Examples                                                                    #
+# ========                                                                    #
+# ```sh                                                                       #
+# $ sherror "failed to open the file"                                         #
+# ERROR: failed to open the file                                              #
+# $ shinfo "foo" "a new update is available"                                  #
+# INFO: foo: a new update is available                                        #
+# $ shlog note "bar" "do ré mi fa sol la si"                                  #
+# NOTE: bar: do ré mi fa sol la si                                            #
+# ```                                                                         #
+# Colors are present in the output but not visible in the examples.           #
+# ·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-·-· #
+# Usage                                                                       #
+# =====                                                                       #
+# ```sh                                                                       #
+# shlog <kind> [origin] <message>                                             #
+# <command> [origin] <message>                                                #
+# ```                                                                         #
+#                                                                             #
+# Arguments                                                                   #
+# ---------                                                                   #
+# kind                                                                        #
+#   The type of log to print.                                                 #
+#   (Possible choices are: error, success, warning, info, question, note)     #
+# origin                                                                      #
+#   Where the log comes from. Must be a valid identifier.                     #
+# message                                                                     #
+#   The logging message.                                                      #
+#                                                                             #
+# Exit codes                                                                  #
+# ----------                                                                  #
+# 2                                                                           #
+#   - The number of arguments is less than 2                                  #
+# 1                                                                           #
+#   - The kind is invalid (not from the possible choices)                     #
+#   - The origin is not a valid identifier                                    #
+###############################################################################
+
+set -euo pipefail
+
+# 1 = red, 2 = green, 3 = yellow, 4 = blue, 5 = magenta, 6 = cyan
+declare -rA kind_codes=(["error"]=1 ["success"]=2 ["warning"]=3 ["info"]=4 ["question"]=5 ["note"]=6)
+# 1 = stdout, 2 = stderr
+declare -rA kind_streams=(["error"]=2 ["success"]=1 ["warning"]=2 ["info"]=1 ["question"]=1 ["note"]=2)
+
+if [ "$#" -lt 2 ]; then
+  sherror "shlog" "expected at least two arguments, but got $#"
+  exit 2
+elif [ "$#" -gt 3 ]; then
+  shwarn "shlog" "expected at most three arguments, but got $#"
+  shnote "shlog" "the additional arguments will be ignored"
+fi
+
+_kind="$1"
+
+if [[ -z "${kind_codes[$_kind]:-}" ]]; then
+  sherror "shlog" "'$_kind' is not a valid log kind"
+  shnote "shlog" "values can be:"
+
+  for key in "${!kind_codes[@]}"; do
+    shnote "shlog" "  - $key"
+  done
+
+  exit 1
+fi
+
+_color="${kind_codes[$_kind]}"
+
+if [ "$#" -eq 2 ]; then
+  _message="$2"
+
+  printf "\x1b[1;3%dm%s:\x1b[22;39m %s\n" "$_color" "${_kind^^}" "$_message" >&"${kind_streams[$_kind]}"
+else
+  _origin="$2"
+  _message="$3"
+
+  if ! [[ "$_origin" =~ [A-Za-z_][A-Za-z0-9_]+ ]]; then
+    sherror "shlog" "invalid log origin '$_origin'"
+    exit 1
+  fi
+
+  printf "\x1b[1;3%dm%s:\x1b[22;39m \x1b[35m%s:\x1b[39m %s\n" "$_color" "${_kind^^}" "$_origin" "$_message" >&"${kind_streams[$_kind]}"
+fi

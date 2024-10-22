@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Showcase of the shlog capabilities
+
+if [[ ":$PATH:" == "$CWD" ]]; then
+    sherror "red" "this is an error"
+    shwarn "yellow" "this is a warning"
+    shsucceed "green" "this is a success"
+    shnote "cyan" "this is a note"
+    shinfo "blue" "this is an information"
+    shask "magenta" "this is a question"
+
+    shlog succeed "shlog is cool!"
+else
+    echo "it seems that shlog is not on PATH :(" >&2
+    exit 1
+fi
